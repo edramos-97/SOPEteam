@@ -5,14 +5,14 @@
 # The sources need, respectively: (common.h , bank.h) , common.h
 # For testing, all needed files can be found in the current directory 
 #
-Executables =  trial 
-Binaries =  trial.o 
+Executables =  main 
+Binaries =  main.o 
 CFLAGS = -Wall
 
 all: $(Executables)
 
-trial: trial.o
-	cc $(CFLAGS) trial.o -o trial
+trial: main.o
+	cc $(CFLAGS) main.o -o main
 
 clean:
 	rm -f $(Executables) \
