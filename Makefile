@@ -11,7 +11,7 @@ CFLAGS = -Wall
 
 all: $(Executables)
 
-trial: main.o
+main: main.o
 	cc $(CFLAGS) main.o -o main
 
 clean:
