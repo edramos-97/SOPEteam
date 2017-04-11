@@ -66,7 +66,7 @@ int main(int argc, char *argv[]) {
 	}
 	//chama funcao recursiva que processa tudo
 	subdirectory_atomic_analyzer(diretorio_escolhido, configuracao,
-			&father_is_dead);
+			&father_is_dead, &pid_father);
 
 	printf("END of MAIN, process %d!\n", getpid());
 	return 0;
