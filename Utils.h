@@ -1,9 +1,10 @@
-#ifndef UTILS
-#define UTILS
+#ifndef UTILS_H
+#define UTILS_H
 
-#include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
+#include <unistd.h>
 
 #define OK 0
 #define NOT_OK -1
@@ -13,7 +14,7 @@
 #define TIPO_NULL 'X'
 #define DEAD 0
 #define ALIVE 100
-#define NAME_MAX 255
+#define NAME__MAX 255
 
 //ESTRUTURA CONFIGURACAO
 typedef struct {
@@ -21,21 +22,21 @@ typedef struct {
 	int go_print;
 	//nome ficheiro/diretorio a procurar
 	int go_name;
-	char name[NAME_MAX];
+	char name[NAME__MAX];
 	//apagar ficheiro/diretorio ou nao
 	int go_delete;
 	//executar comando ou nao
 	int go_exec;
-	char command[NAME_MAX];
+	char command[NAME__MAX];
 	//tipo de ficheiro a procurar
 	char go_type;
 	//permissoes em octal
 	int go_permissions;
-} CONFIG ;
+} CONFIG;
 
 //le configuracao desejada
 void le_config(int argc, char *argv[], CONFIG * configuracao);
 
 void printConfig(CONFIG c);
 
-#endif
+#endif /* UTILS_H */

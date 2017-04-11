@@ -1,21 +1,14 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <dirent.h>
-#include <sys/stat.h>
-#include <errno.h>
-#include <sys/types.h>
-#include <unistd.h>
 #include <signal.h>
 #include "Utils.h"
+#include "Processamento.h"
 
 //VARIAVEIS GLOBAIS
-pid_t father_is_dead;
-int pid_father;
+int father_is_dead;
+pid_t pid_father;
 
 //handler para o CTRL-C
 void sigint_handler(int signo) {
-	if(getpid() != pid_father){
+	if (getpid() != pid_father) {
 		return;
 	}
 
@@ -42,7 +35,6 @@ void sigint_handler(int signo) {
 	return;
 }
 
-
 //-name string -perm octal -type c -print -delete -exec 
 int main(int argc, char *argv[]) {
 	//qualquer programa tem pelo menos 5 argumentos
@@ -56,52 +48,26 @@ int main(int argc, char *argv[]) {
 		exit(1);
 	}
 	printf("Process %d initiating...\n", getpid());
-	
+
 	//inicializa variaveis globais
 	father_is_dead = ALIVE;
 	pid_father = getpid();
-	
+
 	//le mode de operacao programa
 	CONFIG configuracao;
-	le_config(argc,argv, &configuracao);
+	le_config(argc, argv, &configuracao);
 
+	//tenta abrir diretorio escolhido pelo utilizador
+	//char * caminho_escolhido = argv[1];
+	DIR * diretorio_escolhido = opendir(argv[1]);
+	if (diretorio_escolhido == NULL) {
+		printf("ERROR OPENING DIRECTORY!\n");
+		exit(1);
+	}
+	//chama funcao recursiva que processa tudo
+	subdirectory_atomic_analyzer(diretorio_escolhido, configuracao,
+			&father_is_dead);
 
-
-
-//	DIR *dirp;
-//	struct dirent *direntp;
-//	struct stat stat_buf;
-//	char *str;
-//	char name[200];
-//	if (argc != 2) {
-//		fprintf(stderr, "Usage: %s dir_name\n", argv[0]);
-//		exit(1);
-//	}
-//	if ((dirp = opendir(argv[1])) == NULL) {
-//		perror(argv[1]);
-//		exit(2);
-//	}
-//	while ((direntp = readdir(dirp)) != NULL) {
-//		sprintf(name, "%s/%s", argv[1], direntp->d_name); // <----- NOTAR
-//		// alternativa a chdir(); ex: anterior
-//		if (lstat(name, &stat_buf) == -1) // testar com stat()
-//				{
-//			perror("lstat ERROR");
-//			exit(3);
-//		}
-//		// printf("%10d - ",(int) stat_buf.st_ino);
-//		if (S_ISREG(stat_buf.st_mode))
-//			str = "regular";
-//		else if (S_ISDIR(stat_buf.st_mode))
-//			str = "directory";
-//		else
-//			str = "other";
-//		printf("%-25s - %s\n", direntp->d_name, str);
-//	}
-//	closedir(dirp);
-//	exit(0);
-
-	
-	printf("END of process %d and father is %d!\n", getpid(),father_is_dead);
+	printf("END of MAIN, process %d!\n", getpid());
 	return 0;
 }
