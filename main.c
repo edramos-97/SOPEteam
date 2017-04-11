@@ -13,17 +13,12 @@
 pid_t father_is_dead;
 int pid_father;
 
-//le configuracao desejada
-void le_config(int argc, char *argv[], struct CONFIG * configuracao) {
-
-}
-
 //handler para o CTRL-C
 void sigint_handler(int signo) {
 	if(getpid() != pid_father){
 		return;
 	}
-	
+
 	char input;
 	printf("Entered SIGINT handler ...\n");
 	printf("Are you sure you want to terminate (Y/N)?\n");
@@ -47,6 +42,7 @@ void sigint_handler(int signo) {
 	return;
 }
 
+
 //-name string -perm octal -type c -print -delete -exec 
 int main(int argc, char *argv[]) {
 	//qualquer programa tem pelo menos 5 argumentos
@@ -65,9 +61,13 @@ int main(int argc, char *argv[]) {
 	father_is_dead = ALIVE;
 	pid_father = getpid();
 	
-	fork();
-	sleep(5);
-	
+	//le mode de operacao programa
+	CONFIG configuracao;
+	le_config(argc,argv, &configuracao);
+
+
+
+
 //	DIR *dirp;
 //	struct dirent *direntp;
 //	struct stat stat_buf;
