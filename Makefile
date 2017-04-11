@@ -1,19 +1,24 @@
-# Makefile example 2
-#
-# Two executables are to be created: bank , client
-# Their source code is, respectively: bank.c , client.c
-# The sources need, respectively: (common.h , bank.h) , common.h
-# For testing, all needed files can be found in the current directory 
-#
-Executables =  main 
-Binaries =  main.o 
-CFLAGS = -Wall
+TARGET = sfind
+LIBS = 
+CC = gcc
+CFLAGS = -Wall -std=c11
 
-all: $(Executables)
+.PHONY: default all clean
 
-main: main.o
-	cc $(CFLAGS) main.o -o main
+default: $(TARGET)
+all: default
+
+OBJECTS = $(patsubst %.c, %.o, $(wildcard *.c))
+HEADERS = $(wildcard *.h)
+
+%.o: %.c $(HEADERS)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+.PRECIOUS: $(TARGET) $(OBJECTS)
+
+$(TARGET): $(OBJECTS)
+	$(CC) $(OBJECTS) -Wall $(LIBS) -o $@
 
 clean:
-	rm -f $(Executables) \
-		$(Binaries)
+	-rm -f *.o
+	-rm -f $(TARGET)
