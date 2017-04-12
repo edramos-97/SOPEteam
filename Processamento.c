@@ -211,7 +211,7 @@ void subdirectory_atomic_analyzer(char * atual, CONFIG configuracao,
 		if (stat(ficheiro_atual, &estado_ficheiro) == NOT_OK)
 			printf("There was an error trying to get the state of %s.",
 					ficheiro->d_name);
-		if (S_ISDIR(estado_ficheiro.st_mode)) { //usa fork
+		if (S_ISDIR(estado_ficheiro.st_mode) && strcmp(".",ficheiro->d_name) != OK && strcmp("..",ficheiro->d_name) != OK) { //usa fork
 			if (fork() == 0) { //FILHO
 				subdirectory_atomic_analyzer(ficheiro_atual, configuracao,
 						global_father, pid_father);
@@ -219,8 +219,9 @@ void subdirectory_atomic_analyzer(char * atual, CONFIG configuracao,
 		}
 	}
 
-	while (wait(NULL) != NOT_OK)
-		;
+	while (wait(NULL) != NOT_OK);
+	if(getpid() != (*pid_father))
+		exit(0);
 
 	return;
 }
