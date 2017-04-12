@@ -8,7 +8,7 @@
 #include <sys/wait.h>
 #include "Utils.h"
 
-void subdirectory_atomic_analyzer(DIR * atual, CONFIG configuracao,
+void subdirectory_atomic_analyzer(char * atual, CONFIG configuracao,
 		int * global_father, pid_t * pid_father);
 
 #endif /* PROCESSAMENTO_H */

@@ -1,73 +1,226 @@
 #include "Processamento.h"
 
-void subdirectory_atomic_analyzer(DIR * atual, CONFIG configuracao,
+void subdirectory_atomic_analyzer(char * atual, CONFIG configuracao,
 		int * global_father, pid_t * pid_father) {
 
-	if((*(global_father)) == DEAD)
+	if ((*(global_father)) == DEAD)
 		return;
 
+	//tenta abrir diretorio escolhido
+	DIR * diretorio_escolhido = opendir(atual);
+	if (diretorio_escolhido == NULL) {
+		printf("ERROR OPENING DIRECTORY!\n");
+		exit(1);
+	}
 
-	struct dirent * directorio;
+	struct dirent * ficheiro;
 	struct stat estado_ficheiro;
 
 	//percorre ficheiros
-	if(configuracao.go_type != TIPO_DIRETORIO){
-		while((struct dirent *)(directorio = readdir(atual)) != NULL){
+	if (configuracao.go_type != TIPO_DIRETORIO) {
+		while ((struct dirent *) (ficheiro = readdir(diretorio_escolhido))
+				!= NULL) {
+
+			if ((*(global_father)) == DEAD)
+				break;
 			//verificar os ficheiros conforme config
+			char ficheiro_atual[NAME__MAX];
+			sprintf(ficheiro_atual, "%s/%s", atual, ficheiro->d_name);
+			if (stat(ficheiro_atual, &estado_ficheiro) == NOT_OK)
+				printf("There was an error trying to get the state of %s.",
+						ficheiro->d_name);
+			else {
+				if (configuracao.go_type == TIPO_NULL) { //nao especificou tipo
 
+					if (configuracao.go_name == OK) { //especificou nome
+						if (strcmp(configuracao.name, ficheiro->d_name) == OK) {
+							if (configuracao.go_print == OK
+									&& configuracao.go_exec != OK) {
+								printf("%s\n", ficheiro_atual); //imprime ficheiro
+							}
 
+							if (configuracao.go_exec == OK) { //executa comando
+								char comando[NAME__MAX];
+								sprintf(comando, "%s %s", configuracao.command,
+										ficheiro_atual);
+								system(comando);
+							}
 
+							if (configuracao.go_delete == OK) {
+								char comando[NAME__MAX];
+								sprintf(comando, "rm -f %s", ficheiro_atual); //apaga
+								system(comando);
+							}
+						} else
+							continue; //nome diferente, passa à frente
 
+					} else { // nao especificou nome, verificar permissoes
+						if (configuracao.go_permissions != NOT_OK) { //especificou permissoes
+							int mode = estado_ficheiro.st_mode
+									& (S_IRWXU | S_IRWXG | S_IRWXO);
+
+							if (mode == configuracao.go_permissions) { //mesmas permissoes
+								if (configuracao.go_print == OK
+										&& configuracao.go_exec != OK) {
+									printf("%s\n", ficheiro_atual); //imprime ficheiro
+								}
+
+								if (configuracao.go_exec == OK) { //executa comando
+									char comando[NAME__MAX];
+									sprintf(comando, "%s %s",
+											configuracao.command,
+											ficheiro_atual);
+									system(comando);
+								}
+
+								if (configuracao.go_delete == OK) {
+									char comando[NAME__MAX];
+									sprintf(comando, "rm -f %s",
+											ficheiro_atual); //apaga
+									system(comando);
+								}
+
+							} else
+								continue;
+
+						} else { //nao especificou permissoes
+							if (configuracao.go_print == OK
+									&& configuracao.go_exec != OK) {
+								printf("%s\n", ficheiro_atual); //imprime ficheiro
+							}
+
+							if (configuracao.go_exec == OK) { //executa comando
+								char comando[NAME__MAX];
+								sprintf(comando, "%s %s", configuracao.command,
+										ficheiro_atual);
+								system(comando);
+							}
+
+							if (configuracao.go_delete == OK) {
+								char comando[NAME__MAX];
+								sprintf(comando, "rm -f %s", ficheiro_atual); //apaga
+								system(comando);
+							}
+
+						}
+
+					}
+
+				} else {	//se o tipo corresponde ao tipo do ficherio
+					if ((configuracao.go_type == TIPO_FICHEIRO
+							&& S_ISREG(estado_ficheiro.st_mode))
+							|| (configuracao.go_type == TIPO_LIGACAO
+									&& S_ISLNK(estado_ficheiro.st_mode))) {
+
+						if (configuracao.go_name == OK) { //especificou nome
+							if (strcmp(configuracao.name,
+									ficheiro->d_name) == OK) {
+								if (configuracao.go_print == OK
+										&& configuracao.go_exec != OK) {
+									printf("%s\n", ficheiro_atual); //imprime ficheiro
+								}
+
+								if (configuracao.go_exec == OK) { //executa comando
+									char comando[NAME__MAX];
+									sprintf(comando, "%s %s",
+											configuracao.command,
+											ficheiro_atual);
+									system(comando);
+								}
+
+								if (configuracao.go_delete == OK) {
+									char comando[NAME__MAX];
+									sprintf(comando, "rm -f %s",
+											ficheiro_atual); //apaga
+									system(comando);
+								}
+							} else
+								continue; //nome diferente, passa à frente
+
+						} else { // nao especificou nome, verificar permissoes
+							if (configuracao.go_permissions != NOT_OK) { //especificou permissoes
+								int mode = estado_ficheiro.st_mode
+										& (S_IRWXU | S_IRWXG | S_IRWXO);
+
+								if (mode == configuracao.go_permissions) { //mesmas permissoes
+									if (configuracao.go_print == OK
+											&& configuracao.go_exec != OK) {
+										printf("%s\n", ficheiro_atual); //imprime ficheiro
+									}
+
+									if (configuracao.go_exec == OK) { //executa comando
+										char comando[NAME__MAX];
+										sprintf(comando, "%s %s",
+												configuracao.command,
+												ficheiro_atual);
+										system(comando);
+									}
+
+									if (configuracao.go_delete == OK) {
+										char comando[NAME__MAX];
+										sprintf(comando, "rm -f %s",
+												ficheiro_atual); //apaga
+										system(comando);
+									}
+
+								} else
+									continue;
+
+							} else { //nao especificou permissoes
+								if (configuracao.go_print == OK
+										&& configuracao.go_exec != OK) {
+									printf("%s\n", ficheiro_atual); //imprime ficheiro
+								}
+
+								if (configuracao.go_exec == OK) { //executa comando
+									char comando[NAME__MAX];
+									sprintf(comando, "%s %s",
+											configuracao.command,
+											ficheiro_atual);
+									system(comando);
+								}
+
+								if (configuracao.go_delete == OK) {
+									char comando[NAME__MAX];
+									sprintf(comando, "rm -f %s",
+											ficheiro_atual); //apaga
+									system(comando);
+								}
+
+							}
+
+						}
+
+					}
+				}
+			}
 		}
 
 		//faz rewind para na proxima volta ler os diretorios.
-		rewinddir(atual);
+		rewinddir(diretorio_escolhido);
 	}
+
 
 	//percorre diretorios (onde vai ter o fork)
-	while((struct dirent *)(directorio = readdir(atual)) != NULL){
+	while ((struct dirent *) (ficheiro = readdir(diretorio_escolhido)) != NULL) {
+		if ((*(global_father)) == DEAD)
+			break;
 		//verificar subdiretorios chamando recursivamente esta funcao
-
-
-
+		char ficheiro_atual[NAME__MAX];
+		sprintf(ficheiro_atual, "%s/%s", atual, ficheiro->d_name);
+		if (stat(ficheiro_atual, &estado_ficheiro) == NOT_OK)
+			printf("There was an error trying to get the state of %s.",
+					ficheiro->d_name);
+		if (S_ISDIR(estado_ficheiro.st_mode)) { //usa fork
+			if (fork() == 0) { //FILHO
+				subdirectory_atomic_analyzer(ficheiro_atual, configuracao,
+						global_father, pid_father);
+			}
+		}
 	}
 
-	if(getpid() == (*(pid_father)))
-		wait();
+	while (wait(NULL) != NOT_OK)
+		;
 
 	return;
 }
-
-
-//-//	DIR *dirp;
-// -//	struct dirent *direntp;
-// -//	struct stat stat_buf;
-// -//	char *str;
-// -//	char name[200];
-// -//	if (argc != 2) {
-// -//		fprintf(stderr, "Usage: %s dir_name\n", argv[0]);
-// -//		exit(1);
-// -//	}
-// -//	if ((dirp = opendir(argv[1])) == NULL) {
-// -//		perror(argv[1]);
-// -//		exit(2);
-// -//	}
-// -//	while ((direntp = readdir(dirp)) != NULL) {
-// -//		sprintf(name, "%s/%s", argv[1], direntp->d_name); // <----- NOTAR
-// -//		// alternativa a chdir(); ex: anterior
-// -//		if (lstat(name, &stat_buf) == -1) // testar com stat()
-// -//				{
-// -//			perror("lstat ERROR");
-// -//			exit(3);
-// -//		}
-// -//		// printf("%10d - ",(int) stat_buf.st_ino);
-// -//		if (S_ISREG(stat_buf.st_mode))
-// -//			str = "regular";
-// -//		else if (S_ISDIR(stat_buf.st_mode))
-// -//			str = "directory";
-// -//		else
-// -//			str = "other";
-// -//		printf("%-25s - %s\n", direntp->d_name, str);
-// -//	}
-// -//	closedir(dirp);
-// -//	exit(0);

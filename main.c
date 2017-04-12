@@ -35,10 +35,23 @@ void sigint_handler(int signo) {
 	return;
 }
 
+
+////handler para o SIGCHLD
+//void sigchld_handler(int signo){
+//	if(getpid() == pid_father){
+//		while(wait(NULL) != NOT_OK){
+//
+//		}
+//	}
+//	return;
+//}
+
+
+
 //-name string -perm octal -type c -print -delete -exec 
 int main(int argc, char *argv[]) {
 	//qualquer programa tem pelo menos 5 argumentos
-	if (argc < 5) {
+	if (argc < 3) {
 		printf("Wrong usage of the program! %d terminating!\n", getpid());
 		exit(1);
 	}
@@ -57,15 +70,9 @@ int main(int argc, char *argv[]) {
 	CONFIG configuracao;
 	le_config(argc, argv, &configuracao);
 
-	//tenta abrir diretorio escolhido pelo utilizador
-	//char * caminho_escolhido = argv[1];
-	DIR * diretorio_escolhido = opendir(argv[1]);
-	if (diretorio_escolhido == NULL) {
-		printf("ERROR OPENING DIRECTORY!\n");
-		exit(1);
-	}
+
 	//chama funcao recursiva que processa tudo
-	subdirectory_atomic_analyzer(diretorio_escolhido, configuracao,
+	subdirectory_atomic_analyzer(argv[1], configuracao,
 			&father_is_dead, &pid_father);
 
 	printf("END of MAIN, process %d!\n", getpid());
