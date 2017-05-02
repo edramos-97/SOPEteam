@@ -8,7 +8,7 @@ void le_config(int argc, char *argv[], CONFIG * configuracao) {
 	configuracao->go_permissions = NOT_OK;
 	configuracao->go_print = NOT_OK;
 	configuracao->go_type = TIPO_NULL;
-	int i;
+	int i = 0;
 	for(i =0 ; i < argc; i++){
 		if(strcmp(argv[i],"-name")==OK){
 			configuracao->go_name = OK;
