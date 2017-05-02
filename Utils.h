@@ -34,6 +34,20 @@ typedef struct {
 	int go_permissions;
 } CONFIG;
 
+typedef struct{
+	//numero de serie do pedido
+	int p;
+
+	//sexo da pessoa ('F' ou 'M')
+	char g;
+
+	//duracao da utilizacao
+	int t;
+
+	//numero de rejeicoes (entre 0 e 3)
+	int r;
+} Pedido;
+
 //le configuracao desejada
 void le_config(int argc, char *argv[], CONFIG * configuracao);
 
