@@ -1,5 +1,5 @@
-TARGET = sfind
-LIBS = 
+TARGET = programa
+LIBS = -pthread
 CC = gcc
 CFLAGS = -Wall -std=c11
 
