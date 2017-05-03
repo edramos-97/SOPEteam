@@ -1,24 +1,19 @@
-TARGET = programa
-LIBS = -pthread
-CC = gcc
-CFLAGS = -Wall -std=c11
+# Makefile 
+Executables =  sauna gerador
+Binaries =  sauna.o gerador.o
+CFLAGS = -Wall -pthread
 
-.PHONY: default all clean
+all: $(Executables)
 
-default: $(TARGET)
-all: default
+.c :
+	gcc $(CFLAGS) $< -o $@ 
 
-OBJECTS = $(patsubst %.c, %.o, $(wildcard *.c))
-HEADERS = $(wildcard *.h)
+$(Binaries): Utils.h
+sauna.o: sauna.h
+gerador.o: gerador.h
 
-%.o: %.c $(HEADERS)
-	$(CC) $(CFLAGS) -c $< -o $@
-
-.PRECIOUS: $(TARGET) $(OBJECTS)
-
-$(TARGET): $(OBJECTS)
-	$(CC) $(OBJECTS) -Wall $(LIBS) -o $@
 
 clean:
-	-rm -f *.o
-	-rm -f $(TARGET)
+	rm -f $(Executables) \
+	$(Binaries)
+#endOf Makefile

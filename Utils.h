@@ -5,52 +5,26 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
-
-#define OK 0
-#define NOT_OK -1
-#define TIPO_FICHEIRO 'f'
-#define TIPO_DIRETORIO 'd'
-#define TIPO_LIGACAO 'l'
-#define TIPO_NULL 'X'
-#define DEAD 0
-#define ALIVE 100
-#define NAME__MAX 255
-
-//ESTRUTURA CONFIGURACAO
-typedef struct {
-	//dar print ou nao
-	int go_print;
-	//nome ficheiro/diretorio a procurar
-	int go_name;
-	char name[NAME__MAX];
-	//apagar ficheiro/diretorio ou nao
-	int go_delete;
-	//executar comando ou nao
-	int go_exec;
-	char command[NAME__MAX];
-	//tipo de ficheiro a procurar
-	char go_type;
-	//permissoes em octal
-	int go_permissions;
-} CONFIG;
+#include<sys/types.h>
+#include<sys/stat.h>
+#include<fcntl.h>
 
 typedef struct{
 	//numero de serie do pedido
-	int p;
+	unsigned int serial_num;
 
 	//sexo da pessoa ('F' ou 'M')
-	char g;
+	char sex;
 
 	//duracao da utilizacao
-	int t;
+	int duration;
 
 	//numero de rejeicoes (entre 0 e 3)
-	int r;
-} Pedido;
+	int rejections;
+} PEDIDO;
 
-//le configuracao desejada
-void le_config(int argc, char *argv[], CONFIG * configuracao);
+char FIFO_ENTRADA[] = "/tmp/entrada";
+char FIFO_REJEITADOS[] = "/tmp/rejeitados";
 
-void printConfig(CONFIG c);
 
 #endif /* UTILS_H */
