@@ -1,6 +1,6 @@
 # Makefile 
-Executables =  sauna gerador
-Binaries =  sauna.o gerador.o
+Executables = sauna gerador
+Binaries =  sauna.o gerador.o 
 CFLAGS = -Wall -pthread
 
 all: $(Executables)
@@ -11,7 +11,6 @@ all: $(Executables)
 $(Binaries): Utils.h
 sauna.o: sauna.h
 gerador.o: gerador.h
-
 
 clean:
 	rm -f $(Executables) \

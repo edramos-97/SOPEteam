@@ -3,4 +3,6 @@
 #include <pthread.h>
 #include "Utils.h"
 
-char SUFIXO_CONTROLO_G[] = "/tmp/ger."
+char SUFIXO_CONTROLO_G[] = "/tmp/ger.";
+
+unsigned int contador = 1;
