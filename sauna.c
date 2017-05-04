@@ -2,6 +2,11 @@
 
 
 void * thread_principal(void * argumento){ //le da entrada
+
+
+
+
+    //estatisticas
     return NULL;
 }
 

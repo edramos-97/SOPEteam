@@ -14,6 +14,7 @@
 #define PERMISSOES_MODE 0660
 
 struct timespec time_init;
+struct timespec time_curr;
 
 typedef struct
 {
