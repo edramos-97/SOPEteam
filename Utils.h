@@ -38,13 +38,13 @@ int fifo_init()
 	int error_fifos;
 
 	error_fifos = mkfifo(FIFO_ENTRADA, PERMISSOES_MODE);
-	if (error_fifos != EEXIST || error_fifos != 0)
+	if (error_fifos < 0 && errno != EEXIST )
 	{
 		perror("ERRO FIFO ENTRADA: ");
 		return -1;
 	}
 	error_fifos = mkfifo(FIFO_REJEITADOS, PERMISSOES_MODE);
-	if (error_fifos != EEXIST || error_fifos != 0)
+	if (error_fifos < 0 && errno != EEXIST )
 	{
 		perror("ERRO FIFO REJEITADOS: ");
 		return -1;
@@ -53,8 +53,20 @@ int fifo_init()
 	return 0;
 }
 
-int fifo_destroy()
-{
+int fifo_destroy(){
+
+	int error_fifos;
+
+	error_fifos = unlink(FIFO_ENTRADA);
+	if (error_fifos < 0 && errno != ENOENT && errno != EBUSY)
+	{
+		perror("ERRO AO APAGAR FIFO ENTRADA: ");
+	}
+	error_fifos = unlink(FIFO_REJEITADOS);
+	if (error_fifos < 0 && errno != ENOENT && errno != EBUSY)
+	{
+		perror("ERRO AO APAGAR FIFO REJEITADOS: ");
+	}
 
 	return 0;
 }
