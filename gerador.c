@@ -26,18 +26,15 @@ void * thread_geradora(void * argument){
         //gera pedido random
         randno = rand();
         PEDIDO pedido_curr;
-        tentativa1.serial_num = contador;
-        tentativa1.sex = (randno % 2) ? 'M' : 'F';
-        tentativa1.rejeicoes = 0;
-        tentativa1.duration = randno % numero_max_tempo;
-
+        pedido_curr.serial_num = contador;
+        pedido_curr.sex = (randno % 2) ? 'M' : 'F';
+        pedido_curr.rejeicoes = 0;
+        pedido_curr.duration = (randno % numero_max_tempo)+1;
         //envia pedido random
         envia_pedido(pedido_curr);
-
+        contador++;
     }
-
     return NULL;
-
 }
 
 
@@ -45,27 +42,27 @@ void * thread_geradora(void * argument){
 //argv[1]-numero de pedidos a enviar
 //argv[2]-tempo max. de utilização (ms)
 int main(int argc, char *argv[]){
-    
+    //seed para os rands
     srand(time(NULL));
+    //relogio inicial
+    clock_gettime(CLOCK_MONOTONIC_RAW,&time_init);
+
     //verifica argumentos entrada
     if (argc != 3){
         printf("Command usage: gerador <no. requests> <max time>\n");
         exit(1);
     }
-
     //criar fifos
     if(fifo_init()<0){
         printf("GERADOR: erro ao  inicializar fifos.\n");
         exit(1);
     }
-
     //abre canal entrada
     fd_fifo_entrada = open(FIFO_ENTRADA,O_WRONLY|O_TRUNC);
     if(fd_fifo_entrada < 0){
         printf("GERADOR: erro ao abrir fifo entrada.\n");
         exit(10);
     }
-
     //abre canal rejeitados
     fd_fifo_rejeitados = open(FIFO_REJEITADOS,O_RDONLY|O_TRUNC);
     if(fd_fifo_rejeitados < 0){
@@ -78,8 +75,9 @@ int main(int argc, char *argv[]){
     //maximo de tempo para cada pedido, milisegundos
     numero_max_tempo = (unsigned int)atoi(argv[2]);
 
-
-
+    //prepara ficheiro controlo
+    sprintf(nome_ficheiro_controlo,"%s%d",SUFIXO_CONTROLO_G,getpid());
+    fd_controlo_g = open(nome_ficheiro_controlo,O_WRONLY|O_TRUNC|O_CREAT,PERMISSOES_MODE);
 
     //função para thread de geração
     //gera pedidos aleatórios e envia para a sauna
@@ -97,22 +95,20 @@ int main(int argc, char *argv[]){
     //(instante de tempo em ms) – (pid do processo) – (numero do pedido): (genero do utilizador) – (duração de utilização) – (tipo de msg)
     //tipos de mensagem "PEDIDO", "REJEITADO" ou "DESCARTADO"
 
-    // PEDIDO tentativa1;
-    // tentativa1.serial_num = contador;
-    // tentativa1.sex = 'M';
-    // tentativa1.rejeicoes = 0;
-    // tentativa1.duration = 10;
-
-    // if(write(fd_fifo_entrada, &tentativa1, sizeof(PEDIDO)) < 0){
-    //     printf("GERADOR: erro ao enviar tentativa1.\n");
-    // }
 
 
 
+
+    
 
 
     //fechar as pontas dos fifos
 
+
+    //fechar ficheiro de controlo + estatisticas
+    if(close(fd_controlo_g) < 0){
+        perror("GERADOR: erro ao fechar ficheiro de controlo");
+    }
     //destruir fifos
     if(fifo_destroy()<0){
         printf("GERADOR: erro ao apagar fifos.\n");

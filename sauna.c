@@ -1,7 +1,9 @@
 #include "sauna.h"
 
 int main(int argc, char *argv[]){
-    
+    //relogio inicial
+    clock_gettime(CLOCK_MONOTONIC_RAW,&time_init);
+
     //verifica argumentos entrada
     if (argc != 2){
         printf("Command usage: gerador <no. seats>\n");
@@ -27,6 +29,14 @@ int main(int argc, char *argv[]){
         exit(10);
     }
 
+    //le numero vagas da sauna
+    numero_vagas = (unsigned int)atoi(argv[1]);
+
+    //prepara ficheiro controlo
+    sprintf(nome_ficheiro_controlo,"%s%d",SUFIXO_CONTROLO_S,getpid());
+    fd_controlo_s = open(nome_ficheiro_controlo,O_WRONLY|O_TRUNC|O_CREAT,PERMISSOES_MODE);
+
+
     // PEDIDO tentativa1;
     // while(1){
     //     int size_read = sizeof(PEDIDO);
@@ -43,6 +53,11 @@ int main(int argc, char *argv[]){
 
     //fechar as pontas dos fifos
 
+
+    //fechar ficheiro de controlo + estatisticas
+    if(close(fd_controlo_s) < 0){
+        perror("SAUNA: erro ao fechar ficheiro de controlo");
+    }
     //destruir fifos
    if(fifo_destroy()<0){
         printf("SAUNA: erro ao apagar fifos.\n");

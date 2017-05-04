@@ -13,6 +13,8 @@
 
 #define PERMISSOES_MODE 0660
 
+struct timespec time_init;
+
 typedef struct
 {
 	//numero de serie do pedido
