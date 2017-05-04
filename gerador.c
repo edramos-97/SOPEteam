@@ -3,7 +3,7 @@
 void *thread_trata_rejeitados(void *argument)
 {
     //le rejeitados enquanto tiver aberto o fifo rejeitados
-
+    
     //verifica o numero de rejeicoes, possivelmente descartando
 
     //se nao descartar envia para a entrada

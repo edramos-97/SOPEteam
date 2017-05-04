@@ -31,3 +31,4 @@ char estado_sauna = VAZIA; //'M' 'F' VAZIA
 
 //semaforos
 sem_t semaforo_vagas;  //controla incrmento das vagas
+sem_t acesso_var_livres; //acesso a variavel de lugares livres

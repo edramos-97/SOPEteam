@@ -3,6 +3,39 @@
 
 void * thread_principal(void * argumento){ //le da entrada
     do{
+        PEDIDO pedido_recebido;
+        read(fd_fifo_entrada,&pedido_recebido,sizeof(pedido_recebido));
+        //atualiza estatistica + controlo
+        if(flag_recebeu == NAO_RECEBEU_PRIMEIRO){
+            flag_recebeu = RECEBEU_PRIMEIRO;
+            pedidos_restantes = pedido_recebido.serial_num;
+        }
+
+        sem_wait(&acesso_var_livres);
+        if(estado_sauna == VAZIA){
+            estado_sauna = pedido_recebido.sex;
+            lugares_livres--;
+            sem_post(&acesso_var_livres);
+
+             //pedido é SERVIDO
+             pedidos_restantes--; //vai ser atendido, menos um pa preocupar
+             //atualiza estatistica + controlo
+             sem_wait(&semaforo_vagas); //menos uma vaga
+            //criar thread de espera
+        }
+        else if(estado_sauna != pedido_recebido.sex){ //rejeitar
+            //atualiza estatistica + controlo
+            if(pedido_recebido.rejeicoes == 2) //sera descartado seguidamente entao menos um pa preocupar
+                pedidos_restantes--;
+            
+        }
+        else { //valores iguais 
+            //atualiza estatistica + controlo
+            pedidos_restantes--; //vai ser atendido, menos um pa preocupar
+            sem_wait(&semaforo_vagas); //menos uma vaga pa meter aqui
+            //criar thread de espera
+        }
+
         //ler pedido
 
         //verificar sexo compativel s/n
@@ -13,6 +46,9 @@ void * thread_principal(void * argumento){ //le da entrada
 
         
     }while(pedidos_restantes > 0);
+    //fechar fifo rejeitados
+    //esperar threads filhas
+
 
     //estatisticas
     dprintf(STDOUT_FILENO,"ESTATISTICAS:\n");
@@ -27,6 +63,12 @@ void * thread_principal(void * argumento){ //le da entrada
 void * thread_espera(void * argumento){ //argumento sera o tempo a esperar
     usleep((*((int*)argumento))*1000);
     free(argumento);
+    
+    sem_wait(&acesso_var_livres);
+    lugares_livres++;
+    if(lugares_livres == numero_vagas)
+        estado_sauna = VAZIA;
+    sem_post(&acesso_var_livres);
     sem_post(&semaforo_vagas);
     return NULL;
 }
@@ -70,7 +112,7 @@ int main(int argc, char *argv[]){
     fd_controlo_s = open(nome_ficheiro_controlo,O_WRONLY|O_TRUNC|O_CREAT,PERMISSOES_MODE);
 
     sem_init(&semaforo_vagas,0,numero_vagas);
-
+    sem_init(&acesso_var_livres,0,1);
 
 
 
