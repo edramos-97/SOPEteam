@@ -8,7 +8,7 @@ int main(int argc, char *argv[]){
         exit(1);
     }
 
-
+    //criar fifos
     if(fifo_init()<0){
         printf("SAUNA: erro ao  inicializar fifos.\n");
         exit(1);
@@ -27,19 +27,23 @@ int main(int argc, char *argv[]){
         exit(10);
     }
 
-    PEDIDO tentativa1;
-    while(1){
-        int size_read = sizeof(PEDIDO);
-        size_read = read(fd_fifo_entrada, &tentativa1, sizeof(PEDIDO));
-        if(size_read != sizeof(PEDIDO))
-            continue;
-        else {
-            printf("SAUNA: recebi 1 pedido.\n");
-            break;
-        }
-    }
+    // PEDIDO tentativa1;
+    // while(1){
+    //     int size_read = sizeof(PEDIDO);
+    //     size_read = read(fd_fifo_entrada, &tentativa1, sizeof(PEDIDO));
+    //     if(size_read != sizeof(PEDIDO))
+    //         continue;
+    //     else {
+    //         printf("SAUNA: recebi 1 pedido.\n");
+    //         break;
+    //     }
+    // }
 
 
+
+    //fechar as pontas dos fifos
+
+    //destruir fifos
    if(fifo_destroy()<0){
         printf("SAUNA: erro ao apagar fifos.\n");
         exit(1);

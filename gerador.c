@@ -8,6 +8,7 @@ int main(int argc, char *argv[]){
         exit(1);
     }
 
+    //criar fifos
     if(fifo_init()<0){
         printf("GERADOR: erro ao  inicializar fifos.\n");
         exit(1);
@@ -28,18 +29,23 @@ int main(int argc, char *argv[]){
     }
 
 
-    PEDIDO tentativa1;
-    tentativa1.serial_num = contador;
-    tentativa1.sex = 'M';
-    tentativa1.rejeicoes = 0;
-    tentativa1.duration = 10;
+    // PEDIDO tentativa1;
+    // tentativa1.serial_num = contador;
+    // tentativa1.sex = 'M';
+    // tentativa1.rejeicoes = 0;
+    // tentativa1.duration = 10;
 
-    if(write(fd_fifo_entrada, &tentativa1, sizeof(PEDIDO)) < 0){
-        printf("GERADOR: erro ao enviar tentativa1.\n");
-    }
+    // if(write(fd_fifo_entrada, &tentativa1, sizeof(PEDIDO)) < 0){
+    //     printf("GERADOR: erro ao enviar tentativa1.\n");
+    // }
 
 
 
+
+
+    //fechar as pontas dos fifos
+
+    //destruir fifos
     if(fifo_destroy()<0){
         printf("GERADOR: erro ao apagar fifos.\n");
         exit(1);
