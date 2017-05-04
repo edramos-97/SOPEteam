@@ -4,3 +4,4 @@
 #include "Utils.h"
 
 char SUFIXO_CONTROLO_S[] = "/tmp/bal.";
+int fd_controlo_s;

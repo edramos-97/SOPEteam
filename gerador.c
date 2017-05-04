@@ -1,6 +1,36 @@
 #include "gerador.h"
 
 
+void * thread_trata_rejeitados(void * argument){
+
+
+
+    return NULL;
+}
+
+void envia_pedido(PEDIDO p){
+    if(write(fd_fifo_entrada, &p, sizeof(PEDIDO)) <= 0){
+        printf("GERADOR: erro ao enviar o pedido com numero de serie %d\n", p.serial_num);
+    }
+    else{
+        //fazer funcao que escreve registos de controlo
+    }
+
+    return;
+}
+
+void * thread_geradora(void * argument){
+    int i;
+    for(i = 0; i < numero_gerador; i++){
+
+    }
+
+    return NULL;
+
+}
+
+
+
 //argv[1]-numero de pedidos a enviar
 //argv[2]-tempo max. de utilização (ms)
 int main(int argc, char *argv[]){
@@ -30,6 +60,14 @@ int main(int argc, char *argv[]){
         printf("GERADOR: erro ao abrir fifo rejeitados.\n");
         exit(10);
     }
+
+    //pedidos a gerar
+    numero_gerador = (unsigned int)atoi(argv[1]);
+    //maximo de tempo para cada pedido, milisegundos
+    numero_max_tempo = (unsigned int)atoi(argv[2]);
+
+
+
 
     //função para thread de geração
     //gera pedidos aleatórios e envia para a sauna
