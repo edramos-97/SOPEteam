@@ -19,9 +19,20 @@ void envia_pedido(PEDIDO p){
     return;
 }
 
+
 void * thread_geradora(void * argument){
-    int i;
+    int i,randno;
     for(i = 0; i < numero_gerador; i++){
+        //gera pedido random
+        randno = rand();
+        PEDIDO pedido_curr;
+        tentativa1.serial_num = contador;
+        tentativa1.sex = (randno % 2) ? 'M' : 'F';
+        tentativa1.rejeicoes = 0;
+        tentativa1.duration = randno % numero_max_tempo;
+
+        //envia pedido random
+        envia_pedido(pedido_curr);
 
     }
 
@@ -35,6 +46,7 @@ void * thread_geradora(void * argument){
 //argv[2]-tempo max. de utilização (ms)
 int main(int argc, char *argv[]){
     
+    srand(time(NULL));
     //verifica argumentos entrada
     if (argc != 3){
         printf("Command usage: gerador <no. requests> <max time>\n");
