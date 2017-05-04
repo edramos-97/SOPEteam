@@ -2,6 +2,15 @@
 
 void *thread_trata_rejeitados(void *argument)
 {
+    //le rejeitados enquanto tiver aberto o fifo rejeitados
+
+    //verifica o numero de rejeicoes, possivelmente descartando
+
+    //se nao descartar envia para a entrada
+
+
+    //se fifo rejeitados for fechado -> fechar fifo de entrada 
+
 
     return NULL;
 }
@@ -26,7 +35,7 @@ void envia_pedido(PEDIDO p)
         //tipos de mensagem "PEDIDO", "REJEITADO" ou "DESCARTADO"
         dprintf(fd_controlo_g, "%8ldms - ", convertToMilliseconds(time_curr) - convertToMilliseconds(time_init)); //tempo
         dprintf(fd_controlo_g, "%-5d - ", getpid());               //pid proc
-        dprintf(fd_controlo_g, "%-4u: ", p.serial_num);            //num pedidos
+        dprintf(fd_controlo_g, "%-10u: ", p.serial_num);            //num pedidos
         dprintf(fd_controlo_g, "%c - ", p.sex);                    //genero
         dprintf(fd_controlo_g, "%-6d - ", p.duration);             //duração
         dprintf(fd_controlo_g, "%-10s\n", "PEDIDO");               //tipo
@@ -123,9 +132,9 @@ int main(int argc, char *argv[])
     }
     //estatisticas
     dprintf(STDOUT_FILENO,"ESTATISTICAS:\n");
-    dprintf(STDOUT_FILENO,"Pedidos gerados:\n%6d Homens;\n%6d Mulheres;\nTotais:%6d\n",estat_gerados_m,estat_gerados_f,estat_gerados_m+estat_gerados_f);
-    dprintf(STDOUT_FILENO,"Pedidos rejeitados:\n%6d Homens;\n%6d Mulheres;\nTotais:%6d\n",estat_rejeitados_m,estat_rejeitados_f,estat_rejeitados_m+estat_rejeitados_f);
-    dprintf(STDOUT_FILENO,"Pedidos descartados:\n%6d Homens;\n%6d Mulheres;\nTotais:%6d\n",estat_descartados_m,estat_descartados_f,estat_descartados_m+estat_descartados_f);
+    dprintf(STDOUT_FILENO,"Pedidos gerados:\n%10d Homens;\n%10d Mulheres;\nTotais:%10d\n",estat_gerados_m,estat_gerados_f,estat_gerados_m+estat_gerados_f);
+    dprintf(STDOUT_FILENO,"Pedidos rejeitados:\n%10d Homens;\n%10d Mulheres;\nTotais:%10d\n",estat_rejeitados_m,estat_rejeitados_f,estat_rejeitados_m+estat_rejeitados_f);
+    dprintf(STDOUT_FILENO,"Pedidos descartados:\n%10d Homens;\n%10d Mulheres;\nTotais:%10d\n",estat_descartados_m,estat_descartados_f,estat_descartados_m+estat_descartados_f);
     //destruir fifos
     if (fifo_destroy() < 0)
     {

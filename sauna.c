@@ -9,16 +9,16 @@ void * thread_principal(void * argumento){ //le da entrada
 
         //n -> rejeitar e verificar se é descartavel para decrementar pedidos_restantes
 
-        //s -> fazer wait do semaforo e se servir decrementar pedidos restantes
+        //s -> fazer wait do semaforo e se servir decrementar pedidos restantes/lançar threads filhos
 
         
     }while(pedidos_restantes > 0);
 
     //estatisticas
     dprintf(STDOUT_FILENO,"ESTATISTICAS:\n");
-    dprintf(STDOUT_FILENO,"Pedidos recebidos:\n%6d Homens;\n%6d Mulheres;\nTotais:%6d\n",estat_recebidos_m,estat_recebidos_f,estat_recebidos_m+estat_recebidos_f);
-    dprintf(STDOUT_FILENO,"Pedidos rejeitados:\n%6d Homens;\n%6d Mulheres;\nTotais:%6d\n",estat_rejeitados_m,estat_rejeitados_f,estat_rejeitados_m+estat_rejeitados_f);
-    dprintf(STDOUT_FILENO,"Pedidos servidos:\n%6d Homens;\n%6d Mulheres;\nTotais:%6d\n",estat_servidos_m,estat_servidos_f,estat_servidos_m+estat_servidos_f);
+    dprintf(STDOUT_FILENO,"Pedidos recebidos:\n%10d Homens;\n%10d Mulheres;\nTotais:%10d\n",estat_recebidos_m,estat_recebidos_f,estat_recebidos_m+estat_recebidos_f);
+    dprintf(STDOUT_FILENO,"Pedidos rejeitados:\n%10d Homens;\n%10d Mulheres;\nTotais:%10d\n",estat_rejeitados_m,estat_rejeitados_f,estat_rejeitados_m+estat_rejeitados_f);
+    dprintf(STDOUT_FILENO,"Pedidos servidos:\n%10d Homens;\n%10d Mulheres;\nTotais:%10d\n",estat_servidos_m,estat_servidos_f,estat_servidos_m+estat_servidos_f);
     
     return NULL;
 }
