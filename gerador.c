@@ -13,7 +13,16 @@ void envia_pedido(PEDIDO p){
         printf("GERADOR: erro ao enviar o pedido com numero de serie %d\n", p.serial_num);
     }
     else{
-        //fazer funcao que escreve registos de controlo
+        //Campos da mensagem têm tamanhos constantes.
+        //tempo de referencia é o inicio do programa.
+        //(instante de tempo em ms) – (pid do processo) – (numero do pedido): (genero do utilizador) – (duração de utilização) – (tipo de msg)
+        //tipos de mensagem "PEDIDO", "REJEITADO" ou "DESCARTADO"
+        fprintf(FILE *stream, "%8sms - ", convertToMilisecond());//tempo
+        fprintf(FILE *stream, "%-5s - ", getpid());//pid proc
+        fprintf(FILE *stream, "%-4s: ", p.serial_num);//num pedidos
+        fprintf(FILE *stream, "%c - ", p.sex);//genero
+        fprintf(FILE *stream, "%-6s - ", p.duration);//duração
+        fprintf(FILE *stream, "%-10s\n", "PEDIDO");//tipo
     }
 
     return;
