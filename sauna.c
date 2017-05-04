@@ -2,16 +2,32 @@
 
 
 void * thread_principal(void * argumento){ //le da entrada
+    do{
+        //ler pedido
 
+        //verificar sexo compativel s/n
 
+        //n -> rejeitar e verificar se é descartavel para decrementar pedidos_restantes
 
+        //s -> fazer wait do semaforo e se servir decrementar pedidos restantes
+
+        
+    }while(pedidos_restantes > 0);
 
     //estatisticas
+    dprintf(STDOUT_FILENO,"ESTATISTICAS:\n");
+    dprintf(STDOUT_FILENO,"Pedidos recebidos:\n%6d Homens;\n%6d Mulheres;\nTotais:%6d\n",estat_recebidos_m,estat_recebidos_f,estat_recebidos_m+estat_recebidos_f);
+    dprintf(STDOUT_FILENO,"Pedidos rejeitados:\n%6d Homens;\n%6d Mulheres;\nTotais:%6d\n",estat_rejeitados_m,estat_rejeitados_f,estat_rejeitados_m+estat_rejeitados_f);
+    dprintf(STDOUT_FILENO,"Pedidos servidos:\n%6d Homens;\n%6d Mulheres;\nTotais:%6d\n",estat_servidos_m,estat_servidos_f,estat_servidos_m+estat_servidos_f);
+    
     return NULL;
 }
 
 
 void * thread_espera(void * argumento){ //argumento sera o tempo a esperar
+    usleep((*((int*)argumento))*1000);
+    free(argumento);
+    sem_post(&semaforo_vagas);
     return NULL;
 }
 
@@ -52,6 +68,8 @@ int main(int argc, char *argv[]){
     //prepara ficheiro controlo
     sprintf(nome_ficheiro_controlo,"%s%d",SUFIXO_CONTROLO_S,getpid());
     fd_controlo_s = open(nome_ficheiro_controlo,O_WRONLY|O_TRUNC|O_CREAT,PERMISSOES_MODE);
+
+    sem_init(&semaforo_vagas,0,numero_vagas);
 
 
 

@@ -38,18 +38,17 @@ void envia_pedido(PEDIDO p)
 void *thread_geradora(void *argument)
 {
     int i, randno;
-    for (i = 0; i < numero_gerador; i++)
+    for (i = numero_gerador; i > 0; i--)
     {
         //gera pedido random
         randno = rand();
         PEDIDO pedido_curr;
-        pedido_curr.serial_num = contador;
+        pedido_curr.serial_num = i;
         pedido_curr.sex = (randno % 2) ? 'M' : 'F';
         pedido_curr.rejeicoes = 0;
         pedido_curr.duration = (randno % numero_max_tempo) + 1;
         //envia pedido random
         envia_pedido(pedido_curr);
-        contador++;
     }
     return NULL;
 }
@@ -123,7 +122,10 @@ int main(int argc, char *argv[])
         perror("GERADOR: erro ao fechar ficheiro de controlo");
     }
     //estatisticas
-    
+    dprintf(STDOUT_FILENO,"ESTATISTICAS:\n");
+    dprintf(STDOUT_FILENO,"Pedidos gerados:\n%6d Homens;\n%6d Mulheres;\nTotais:%6d\n",estat_gerados_m,estat_gerados_f,estat_gerados_m+estat_gerados_f);
+    dprintf(STDOUT_FILENO,"Pedidos rejeitados:\n%6d Homens;\n%6d Mulheres;\nTotais:%6d\n",estat_rejeitados_m,estat_rejeitados_f,estat_rejeitados_m+estat_rejeitados_f);
+    dprintf(STDOUT_FILENO,"Pedidos descartados:\n%6d Homens;\n%6d Mulheres;\nTotais:%6d\n",estat_descartados_m,estat_descartados_f,estat_descartados_m+estat_descartados_f);
     //destruir fifos
     if (fifo_destroy() < 0)
     {
