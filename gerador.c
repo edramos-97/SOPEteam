@@ -1,5 +1,8 @@
 #include "gerador.h"
 
+
+//argv[1]-numero de pedidos a enviar
+//argv[2]-tempo max. de utilização (ms)
 int main(int argc, char *argv[]){
     
     //verifica argumentos entrada
@@ -27,6 +30,21 @@ int main(int argc, char *argv[]){
         exit(10);
     }
 
+    //função para thread de geração
+    //gera pedidos aleatórios e envia para a sauna
+    //regista no ficheiro ger.(pid do processo) os pedidos enviados
+
+
+    //função para thread de tratar pedidos rejeitados
+    //verifica o numeros de vezes que o pedido foi rejeitado e recoloca-o na fila
+    //de pedidos ou descarta-o caso já tenha sido rejeitado 3 vezes
+    //regista no ficheiro os pedidos rejeitados e os pedidos discartados
+
+
+    //Campos da mensagem têm tamanhos constantes.
+    //tempo de referencia é o inicio do programa.
+    //(instante de tempo em ms) – (pid do processo) – (numero do pedido): (genero do utilizador) – (duração de utilização) – (tipo de msg)
+    //tipos de mensagem "PEDIDO", "REJEITADO" ou "DESCARTADO"
 
     PEDIDO tentativa1;
     tentativa1.serial_num = contador;
