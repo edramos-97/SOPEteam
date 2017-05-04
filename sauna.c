@@ -1,5 +1,16 @@
 #include "sauna.h"
 
+
+void * thread_principal(void * argumento){ //le da entrada
+    return NULL;
+}
+
+
+void * thread_espera(void * argumento){ //argumento sera o tempo a esperar
+    return NULL;
+}
+
+//argv[1]-numero de pedidos a enviar
 int main(int argc, char *argv[]){
     //relogio inicial
     clock_gettime(CLOCK_MONOTONIC_RAW,&time_init);
@@ -29,12 +40,15 @@ int main(int argc, char *argv[]){
         exit(10);
     }
 
-    //le numero vagas da sauna
+    //le numero vagas da sauna e atualiza os livres
     numero_vagas = (unsigned int)atoi(argv[1]);
+    lugares_livres = numero_vagas;
 
     //prepara ficheiro controlo
     sprintf(nome_ficheiro_controlo,"%s%d",SUFIXO_CONTROLO_S,getpid());
     fd_controlo_s = open(nome_ficheiro_controlo,O_WRONLY|O_TRUNC|O_CREAT,PERMISSOES_MODE);
+
+
 
 
     // PEDIDO tentativa1;

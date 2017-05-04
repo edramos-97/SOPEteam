@@ -8,6 +8,7 @@ int fd_controlo_s;
 char nome_ficheiro_controlo[sizeof(SUFIXO_CONTROLO_S)+10]; //pid tem no maximo 5 digitos, mais um para nulo terminador
 
 unsigned int numero_vagas;
+unsigned int lugares_livres;
 
 //nr pedidos recebidos,rejeicoes ,servidos
 unsigned int estat_recebidos_m = 0;
