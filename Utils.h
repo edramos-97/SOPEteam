@@ -77,8 +77,8 @@ int fifo_destroy(){
 	return 0;
 }
 
-long convertToMilliseconds(struct timespec t){
-	long res;
+float convertToMilliseconds(struct timespec t){
+	float res;
 	res=(t.tv_sec * 1000);
 	res+=(t.tv_nsec / 1000000);
 	return res;

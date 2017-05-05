@@ -33,7 +33,7 @@ void envia_pedido(PEDIDO p)
         //tempo de referencia é o inicio do programa.
         //(instante de tempo em ms) – (pid do processo) – (numero do pedido): (genero do utilizador) – (duração de utilização) – (tipo de msg)
         //tipos de mensagem "PEDIDO", "REJEITADO" ou "DESCARTADO"
-        dprintf(fd_controlo_g, "%8ldms - ", convertToMilliseconds(time_curr) - convertToMilliseconds(time_init)); //tempo
+        dprintf(fd_controlo_g, "%10.2fms - ", convertToMilliseconds(time_curr) - convertToMilliseconds(time_init)); //tempo
         dprintf(fd_controlo_g, "%-5d - ", getpid());               //pid proc
         dprintf(fd_controlo_g, "%-10u: ", p.serial_num);            //num pedidos
         dprintf(fd_controlo_g, "%c - ", p.sex);                    //genero
