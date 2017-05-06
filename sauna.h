@@ -7,6 +7,9 @@
 #define RECEBEU_PRIMEIRO 1
 #define NAO_RECEBEU_PRIMEIRO 0
 
+struct timespec time_init;
+struct timespec time_curr;
+
 char SUFIXO_CONTROLO_S[] = "/tmp/bal.";
 int fd_controlo_s;
 char nome_ficheiro_controlo[sizeof(SUFIXO_CONTROLO_S)+10]; //pid tem no maximo 5 digitos, mais um para nulo terminador
@@ -32,3 +35,7 @@ char estado_sauna = VAZIA; //'M' 'F' VAZIA
 //semaforos
 sem_t semaforo_vagas;  //controla incrmento das vagas
 sem_t acesso_var_livres; //acesso a variavel de lugares livres
+
+
+//thread espera
+void *thread_espera(void *argumento);

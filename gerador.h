@@ -7,6 +7,8 @@ char SUFIXO_CONTROLO_G[] = "/tmp/ger.";
 int fd_controlo_g;
 char nome_ficheiro_controlo[sizeof(SUFIXO_CONTROLO_G)+10]; //pid tem no maximo 5 digitos, mais um para nulo terminador
 
+struct timespec time_init_g;
+struct timespec time_curr_g;
 
 unsigned int numero_gerador;
 unsigned int numero_max_tempo;

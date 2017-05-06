@@ -12,12 +12,13 @@ void *thread_principal(void *argumento)
             estat_recebidos_f++;
         else
             estat_recebidos_m++;
+        clock_gettime(CLOCK_MONOTONIC_RAW, &time_curr);
         dprintf(fd_controlo_s, "%.2fms - ", convertToMilliseconds(time_curr) - convertToMilliseconds(time_init)); //tempo
         dprintf(fd_controlo_s, "%-5d - ", getpid());   //pid proc
-        dprintf(fd_controlo_s, "%-5d - ", pthread_self()); //tid
-        dprintf(fd_controlo_s, "%-10u: ", p.serial_num); //num pedido
-        dprintf(fd_controlo_s, "%c - ", p.sex);          //genero
-        dprintf(fd_controlo_s, "%-6d - ", p.duration);   //duração
+        dprintf(fd_controlo_s, "%-5lu - ", pthread_self()); //tid
+        dprintf(fd_controlo_s, "%-10u: ", pedido_recebido.serial_num); //num pedido
+        dprintf(fd_controlo_s, "%c - ", pedido_recebido.sex);          //genero
+        dprintf(fd_controlo_s, "%-6d - ", pedido_recebido.duration);   //duração
         dprintf(fd_controlo_s, "%-10s\n", "RECEBIDO");   //tipo
 
         //print_info(pedido_recebido,"RECEBIDO");
@@ -42,20 +43,26 @@ void *thread_principal(void *argumento)
                 estat_servidos_f++;
             else
                 estat_servidos_m++;
+            clock_gettime(CLOCK_MONOTONIC_RAW, &time_curr);
             dprintf(fd_controlo_s, "%.2fms - ", convertToMilliseconds(time_curr) - convertToMilliseconds(time_init)); //tempo
             dprintf(fd_controlo_s, "%-5d - ", getpid());   //pid proc
-            dprintf(fd_controlo_s, "%-5d - ", pthread_self()); //tid
-            dprintf(fd_controlo_s, "%-10u: ", p.serial_num); //num pedido
-            dprintf(fd_controlo_s, "%c - ", p.sex);          //genero
-            dprintf(fd_controlo_s, "%-6d - ", p.duration);   //duração
+            dprintf(fd_controlo_s, "%-5lu - ", pthread_self()); //tid
+            dprintf(fd_controlo_s, "%-10u: ", pedido_recebido.serial_num); //num pedido
+            dprintf(fd_controlo_s, "%c - ", pedido_recebido.sex);          //genero
+            dprintf(fd_controlo_s, "%-6d - ", pedido_recebido.duration);   //duração
             dprintf(fd_controlo_s, "%-10s\n", "SERVIDO");   //tipo
 
             
             sem_wait(&semaforo_vagas); //menos uma vaga
             //criar thread de espera
+            pthread_t tid;
+            int * tempo = malloc(sizeof(int));
+            (*tempo) = pedido_recebido.duration;
+            pthread_create(&tid,NULL,thread_espera,(void *) tempo);
         }
         else if (estado_sauna != pedido_recebido.sex)
         { //rejeitar
+            sem_post(&acesso_var_livres);
             if (pedido_recebido.rejeicoes == 2) //sera descartado seguidamente entao menos um pa preocupar
                 pedidos_restantes--;
 
@@ -64,43 +71,60 @@ void *thread_principal(void *argumento)
                 estat_rejeitados_f++;
             else
                 estat_rejeitados_f++;
+            clock_gettime(CLOCK_MONOTONIC_RAW, &time_curr);
             dprintf(fd_controlo_s, "%.2fms - ", convertToMilliseconds(time_curr) - convertToMilliseconds(time_init)); //tempo
             dprintf(fd_controlo_s, "%-5d - ", getpid());    //pid proc
-            dprintf(fd_controlo_s, "%-5d - ", pthread_self()); //tid
-            dprintf(fd_controlo_s, "%-10u: ", p.serial_num); //num pedido
-            dprintf(fd_controlo_s, "%c - ", p.sex);          //genero
-            dprintf(fd_controlo_s, "%-6d - ", p.duration);   //duração
+            dprintf(fd_controlo_s, "%-5lu - ", pthread_self()); //tid
+            dprintf(fd_controlo_s, "%-10u: ", pedido_recebido.serial_num); //num pedido
+            dprintf(fd_controlo_s, "%c - ", pedido_recebido.sex);          //genero
+            dprintf(fd_controlo_s, "%-6d - ", pedido_recebido.duration);   //duração
             dprintf(fd_controlo_s, "%-10s\n", "REJEITADO");   //tipo
 
             //escrever no fifo rejeitados
+
+            write(fd_fifo_rejeitados,&pedido_recebido,sizeof(pedido_recebido));
         }
         else
         { //valores iguais
+            lugares_livres--;
+            sem_post(&acesso_var_livres);
+            sem_wait(&semaforo_vagas); //menos uma vaga pa meter aqui
+
+            
+        
+
             pedidos_restantes--;       //vai ser atendido, menos um pa preocupar
              //atualiza estatistica + controlo
             if (pedido_recebido.sex == 'F')
                 estat_servidos_f++;
             else
                 estat_servidos_m++;
+            clock_gettime(CLOCK_MONOTONIC_RAW, &time_curr);
             dprintf(fd_controlo_s, "%.2fms - ", convertToMilliseconds(time_curr) - convertToMilliseconds(time_init)); //tempo
             dprintf(fd_controlo_s, "%-5d - ", getpid());   //pid                                                           
-            dprintf(fd_controlo_s, "%-5d - ", pthread_self()); //tid
-            dprintf(fd_controlo_s, "%-10u: ", p.serial_num); //num pedido
-            dprintf(fd_controlo_s, "%c - ", p.sex);          //genero
-            dprintf(fd_controlo_s, "%-6d - ", p.duration);   //duração
+            dprintf(fd_controlo_s, "%-5lu - ", pthread_self()); //tid
+            dprintf(fd_controlo_s, "%-10u: ", pedido_recebido.serial_num); //num pedido
+            dprintf(fd_controlo_s, "%c - ", pedido_recebido.sex);          //genero
+            dprintf(fd_controlo_s, "%-6d - ", pedido_recebido.duration);   //duração
             dprintf(fd_controlo_s, "%-10s\n", "SERVIDO");   //tipo
-
-
-
-            sem_wait(&semaforo_vagas); //menos uma vaga pa meter aqui
             //criar thread de espera
+            pthread_t tid;
+            int * tempo = malloc(sizeof(int));
+            (*tempo) = pedido_recebido.duration;
+            pthread_create(&tid,NULL,thread_espera,(void *) tempo);
         }
 
     } while (pedidos_restantes > 0);
 
     //fechar fifo rejeitados
-    //esperar threads filhas
+    close(fd_fifo_rejeitados);
+    close(fd_fifo_entrada);
+    //esperar threads filhas 
+    while(estado_sauna != VAZIA)
+        usleep(100000); //espera 100ms
     //IDEA: esperar pelas threads filhas consultando em espera ativa o valor da variavel estado_sauna.
+
+   
 
     //estatisticas
     dprintf(STDOUT_FILENO, "ESTATISTICAS:\n");
@@ -125,20 +149,19 @@ void *thread_espera(void *argumento)
     return NULL;
 }
 
-void print_info(PEDIDO pedido,char*[] tipo){
-    dprintf(fd_controlo_g, "%10.2fms - ", convertToMilliseconds(time_curr) - convertToMilliseconds(time_init)); //tempo
-    dprintf(fd_controlo_g, "%-5d - ", getpid());                                                                //pid proc
-    dprintf(fd_controlo_g, "%-10u: ", p.serial_num);                                                            //num pedidos
-    dprintf(fd_controlo_g, "%c - ", p.sex);                                                                     //genero
-    dprintf(fd_controlo_g, "%-6d - ", p.duration);                                                              //duração
-    dprintf(fd_controlo_g, "%-10s\n", tipo);
+void print_info(PEDIDO p,char* tipo){
+    dprintf(fd_controlo_s, "%10.2fms - ", convertToMilliseconds(time_curr) - convertToMilliseconds(time_init)); //tempo
+    dprintf(fd_controlo_s, "%-5d - ", getpid());                                                                //pid proc
+    dprintf(fd_controlo_s, "%-10u: ", p.serial_num);                                                            //num pedidos
+    dprintf(fd_controlo_s, "%c - ", p.sex);                                                                     //genero
+    dprintf(fd_controlo_s, "%-6d - ", p.duration);                                                              //duração
+    dprintf(fd_controlo_s, "%-10s\n", tipo);
 }
 
 //argv[1]-numero de pedidos a enviar
 int main(int argc, char *argv[])
 {
-    //relogio inicial
-    clock_gettime(CLOCK_MONOTONIC_RAW, &time_init);
+    
 
     //verifica argumentos entrada
     if (argc != 2)
@@ -180,19 +203,12 @@ int main(int argc, char *argv[])
     sem_init(&semaforo_vagas, 0, numero_vagas);
     sem_init(&acesso_var_livres, 0, 1);
 
-    // PEDIDO tentativa1;
-    // while(1){
-    //     int size_read = sizeof(PEDIDO);
-    //     size_read = read(fd_fifo_entrada, &tentativa1, sizeof(PEDIDO));
-    //     if(size_read != sizeof(PEDIDO))
-    //         continue;
-    //     else {
-    //         printf("SAUNA: recebi 1 pedido.\n");
-    //         break;
-    //     }
-    // }
+    //relogio inicial
+    clock_gettime(CLOCK_MONOTONIC_RAW, &time_init);
 
-    //fechar as pontas dos fifos
+    pthread_t tid;
+    pthread_create(&tid,NULL,thread_principal,NULL);
+    pthread_join(tid,NULL);
 
     //fechar ficheiro de controlo + estatisticas
     if (close(fd_controlo_s) < 0)

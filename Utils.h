@@ -15,8 +15,7 @@
 
 #define PERMISSOES_MODE 0660
 
-struct timespec time_init;
-struct timespec time_curr;
+
 
 typedef struct
 {
@@ -80,7 +79,7 @@ int fifo_destroy(){
 float convertToMilliseconds(struct timespec t){
 	float res;
 	res=(t.tv_sec * 1000);
-	res+=(t.tv_nsec / 1000000);
+	res+=((float)t.tv_nsec / 1000000);
 	return res;
 }
 

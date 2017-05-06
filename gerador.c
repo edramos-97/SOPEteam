@@ -3,29 +3,55 @@
 void *thread_trata_rejeitados(void *argument)
 {
     PEDIDO pedido_rejeitado;
-    //le rejeitados enquanto tiver aberto o fifo rejeitados
-    if(read(fd_fifo_rejeitados, &pedido_rejeitado, sizeof(pedido_rejeitado)<=0){
-        //se fifo rejeitados for fechado -> fechar fifo de entrada
-    }
-    
-    //verifica o numero de rejeicoes, possivelmente descartando
-    if(pedido_rejeitado.rejeicoes<2){
+    int resultado_leitura = read(fd_fifo_rejeitados, &pedido_rejeitado, sizeof(pedido_rejeitado));
+    while (resultado_leitura > 0)
+    {
+        if (pedido_rejeitado.sex == 'F')
+            estat_rejeitados_f++;
+        else
+            estat_rejeitados_m++;
+        clock_gettime(CLOCK_MONOTONIC_RAW, &time_curr_g);
+        dprintf(fd_controlo_g, "%10.2fms - ", convertToMilliseconds(time_curr_g) - convertToMilliseconds(time_init_g)); //tempo
+        dprintf(fd_controlo_g, "%-5d - ", getpid());                                                                //pid proc
+        dprintf(fd_controlo_g, "%-10u: ", pedido_rejeitado.serial_num);                                                            //num pedidos
+        dprintf(fd_controlo_g, "%c - ", pedido_rejeitado.sex);                                                                     //genero
+        dprintf(fd_controlo_g, "%-6d - ", pedido_rejeitado.duration);                                                              //duração
+        dprintf(fd_controlo_g, "%-10s\n", "REJEITADO");
+
         pedido_rejeitado.rejeicoes++;
-        //se nao descartar envia para a entrada
-        write(fd_fifo_entrada, &pedido_rejeitado, sizeof(PEDIDO));
+        if (pedido_rejeitado.rejeicoes < 3)
+        { //envia para entrada
+
+            clock_gettime(CLOCK_MONOTONIC_RAW, &time_curr_g);
+            dprintf(fd_controlo_g, "%10.2fms - ", convertToMilliseconds(time_curr_g) - convertToMilliseconds(time_init_g)); //tempo
+            dprintf(fd_controlo_g, "%-5d - ", getpid());                                                                //pid proc
+            dprintf(fd_controlo_g, "%-10u: ", pedido_rejeitado.serial_num);                                                            //num pedidos
+            dprintf(fd_controlo_g, "%c - ", pedido_rejeitado.sex);                                                                     //genero
+            dprintf(fd_controlo_g, "%-6d - ", pedido_rejeitado.duration);                                                              //duração
+            dprintf(fd_controlo_g, "%-10s\n", "PEDIDO");
+            write(fd_fifo_entrada, &pedido_rejeitado, sizeof(pedido_rejeitado));
+        }
+        else
+        { //descarta
+            if (pedido_rejeitado.sex == 'F')
+                estat_descartados_f++;
+            else
+                estat_descartados_m++;
+            clock_gettime(CLOCK_MONOTONIC_RAW, &time_curr_g);
+            dprintf(fd_controlo_g, "%10.2fms - ", convertToMilliseconds(time_curr_g) - convertToMilliseconds(time_init_g)); //tempo
+            dprintf(fd_controlo_g, "%-5d - ", getpid());                                                                //pid proc
+            dprintf(fd_controlo_g, "%-10u: ", pedido_rejeitado.serial_num);                                                            //num pedidos
+            dprintf(fd_controlo_g, "%c - ", pedido_rejeitado.sex);                                                                     //genero
+            dprintf(fd_controlo_g, "%-6d - ", pedido_rejeitado.duration);                                                              //duração
+            dprintf(fd_controlo_g, "%-10s\n", "DESCARTADO");
+        }
+
+        resultado_leitura = read(fd_fifo_rejeitados, &pedido_rejeitado, sizeof(pedido_rejeitado));
     }
 
-    dprintf(fd_controlo_g, "%10.2fms - ", convertToMilliseconds(time_curr) - convertToMilliseconds(time_init)); //tempo
-    dprintf(fd_controlo_g, "%-5d - ", getpid());                                                                //pid proc
-    dprintf(fd_controlo_g, "%-10u: ", p.serial_num);                                                            //num pedidos
-    dprintf(fd_controlo_g, "%c - ", p.sex);                                                                     //genero
-    dprintf(fd_controlo_g, "%-6d - ", p.duration);                                                              //duração
-    dprintf(fd_controlo_g, "%-10s\n", "DESCARTADO");
-
-    if (pedido_rejeitado.sex == 'F')
-        estat_descartados_f++;
-    else
-        estat_descartados_m++;
+    //fifo rejeitados foi fechado entao fecha fifo entrada;
+    close(fd_fifo_entrada);
+    close(fd_fifo_rejeitados);
 
     return NULL;
 }
@@ -48,7 +74,8 @@ void envia_pedido(PEDIDO p)
         //tempo de referencia é o inicio do programa.
         //(instante de tempo em ms) – (pid do processo) – (numero do pedido): (genero do utilizador) – (duração de utilização) – (tipo de msg)
         //tipos de mensagem "PEDIDO", "REJEITADO" ou "DESCARTADO"
-        dprintf(fd_controlo_g, "%10.2fms - ", convertToMilliseconds(time_curr) - convertToMilliseconds(time_init)); //tempo
+        clock_gettime(CLOCK_MONOTONIC_RAW, &time_curr_g);
+        dprintf(fd_controlo_g, "%10.2fms - ", convertToMilliseconds(time_curr_g) - convertToMilliseconds(time_init_g)); //tempo
         dprintf(fd_controlo_g, "%-5d - ", getpid());                                                                //pid proc
         dprintf(fd_controlo_g, "%-10u: ", p.serial_num);                                                            //num pedidos
         dprintf(fd_controlo_g, "%c - ", p.sex);                                                                     //genero
@@ -84,7 +111,7 @@ int main(int argc, char *argv[])
     //seed para os rands
     srand(time(NULL));
     //relogio inicial
-    clock_gettime(CLOCK_MONOTONIC_RAW, &time_init);
+    
 
     //verifica argumentos entrada
     if (argc != 3)
@@ -122,6 +149,15 @@ int main(int argc, char *argv[])
     sprintf(nome_ficheiro_controlo, "%s%d", SUFIXO_CONTROLO_G, getpid());
     fd_controlo_g = open(nome_ficheiro_controlo, O_WRONLY | O_TRUNC | O_CREAT, PERMISSOES_MODE);
 
+    clock_gettime(CLOCK_MONOTONIC_RAW, &time_init_g);
+
+    pthread_t tid_gera, tid_rej;
+    pthread_create(&tid_gera, NULL, thread_geradora, NULL);
+    pthread_create(&tid_rej, NULL, thread_trata_rejeitados, NULL);
+
+    pthread_join(tid_gera, NULL);
+    pthread_join(tid_rej, NULL);
+
     //função para thread de geração
     //gera pedidos aleatórios e envia para a sauna
     //regista no ficheiro ger.(pid do processo) os pedidos enviados
@@ -135,8 +171,6 @@ int main(int argc, char *argv[])
     //tempo de referencia é o inicio do programa.
     //(instante de tempo em ms) – (pid do processo) – (numero do pedido): (genero do utilizador) – (duração de utilização) – (tipo de msg)
     //tipos de mensagem "PEDIDO", "REJEITADO" ou "DESCARTADO"
-
-    //fechar as pontas dos fifos
 
     //fechar ficheiro de controlo
     if (close(fd_controlo_g) < 0)
