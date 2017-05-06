@@ -20,6 +20,8 @@ void *thread_principal(void *argumento)
         dprintf(fd_controlo_s, "%-6d - ", p.duration);   //duração
         dprintf(fd_controlo_s, "%-10s\n", "RECEBIDO");   //tipo
 
+        //print_info(pedido_recebido,"RECEBIDO");
+
         if (flag_recebeu == NAO_RECEBEU_PRIMEIRO)
         {
             flag_recebeu = RECEBEU_PRIMEIRO;
@@ -121,6 +123,15 @@ void *thread_espera(void *argumento)
     sem_post(&acesso_var_livres);
     sem_post(&semaforo_vagas);
     return NULL;
+}
+
+void print_info(PEDIDO pedido,char*[] tipo){
+    dprintf(fd_controlo_g, "%10.2fms - ", convertToMilliseconds(time_curr) - convertToMilliseconds(time_init)); //tempo
+    dprintf(fd_controlo_g, "%-5d - ", getpid());                                                                //pid proc
+    dprintf(fd_controlo_g, "%-10u: ", p.serial_num);                                                            //num pedidos
+    dprintf(fd_controlo_g, "%c - ", p.sex);                                                                     //genero
+    dprintf(fd_controlo_g, "%-6d - ", p.duration);                                                              //duração
+    dprintf(fd_controlo_g, "%-10s\n", tipo);
 }
 
 //argv[1]-numero de pedidos a enviar

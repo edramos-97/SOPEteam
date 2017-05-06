@@ -2,15 +2,30 @@
 
 void *thread_trata_rejeitados(void *argument)
 {
+    PEDIDO pedido_rejeitado;
     //le rejeitados enquanto tiver aberto o fifo rejeitados
+    if(read(fd_fifo_rejeitados, &pedido_rejeitado, sizeof(pedido_rejeitado)<=0){
+        //se fifo rejeitados for fechado -> fechar fifo de entrada
+    }
     
     //verifica o numero de rejeicoes, possivelmente descartando
+    if(pedido_rejeitado.rejeicoes<2){
+        pedido_rejeitado.rejeicoes++;
+        //se nao descartar envia para a entrada
+        write(fd_fifo_entrada, &pedido_rejeitado, sizeof(PEDIDO));
+    }
 
-    //se nao descartar envia para a entrada
+    dprintf(fd_controlo_g, "%10.2fms - ", convertToMilliseconds(time_curr) - convertToMilliseconds(time_init)); //tempo
+    dprintf(fd_controlo_g, "%-5d - ", getpid());                                                                //pid proc
+    dprintf(fd_controlo_g, "%-10u: ", p.serial_num);                                                            //num pedidos
+    dprintf(fd_controlo_g, "%c - ", p.sex);                                                                     //genero
+    dprintf(fd_controlo_g, "%-6d - ", p.duration);                                                              //duração
+    dprintf(fd_controlo_g, "%-10s\n", "DESCARTADO");
 
-
-    //se fifo rejeitados for fechado -> fechar fifo de entrada 
-
+    if (pedido_rejeitado.sex == 'F')
+        estat_descartados_f++;
+    else
+        estat_descartados_m++;
 
     return NULL;
 }
@@ -34,11 +49,11 @@ void envia_pedido(PEDIDO p)
         //(instante de tempo em ms) – (pid do processo) – (numero do pedido): (genero do utilizador) – (duração de utilização) – (tipo de msg)
         //tipos de mensagem "PEDIDO", "REJEITADO" ou "DESCARTADO"
         dprintf(fd_controlo_g, "%10.2fms - ", convertToMilliseconds(time_curr) - convertToMilliseconds(time_init)); //tempo
-        dprintf(fd_controlo_g, "%-5d - ", getpid());               //pid proc
-        dprintf(fd_controlo_g, "%-10u: ", p.serial_num);            //num pedidos
-        dprintf(fd_controlo_g, "%c - ", p.sex);                    //genero
-        dprintf(fd_controlo_g, "%-6d - ", p.duration);             //duração
-        dprintf(fd_controlo_g, "%-10s\n", "PEDIDO");               //tipo
+        dprintf(fd_controlo_g, "%-5d - ", getpid());                                                                //pid proc
+        dprintf(fd_controlo_g, "%-10u: ", p.serial_num);                                                            //num pedidos
+        dprintf(fd_controlo_g, "%c - ", p.sex);                                                                     //genero
+        dprintf(fd_controlo_g, "%-6d - ", p.duration);                                                              //duração
+        dprintf(fd_controlo_g, "%-10s\n", "PEDIDO");                                                                //tipo
     }
 
     return;
@@ -107,7 +122,6 @@ int main(int argc, char *argv[])
     sprintf(nome_ficheiro_controlo, "%s%d", SUFIXO_CONTROLO_G, getpid());
     fd_controlo_g = open(nome_ficheiro_controlo, O_WRONLY | O_TRUNC | O_CREAT, PERMISSOES_MODE);
 
-   
     //função para thread de geração
     //gera pedidos aleatórios e envia para a sauna
     //regista no ficheiro ger.(pid do processo) os pedidos enviados
@@ -124,17 +138,16 @@ int main(int argc, char *argv[])
 
     //fechar as pontas dos fifos
 
-
     //fechar ficheiro de controlo
     if (close(fd_controlo_g) < 0)
     {
         perror("GERADOR: erro ao fechar ficheiro de controlo");
     }
     //estatisticas
-    dprintf(STDOUT_FILENO,"ESTATISTICAS:\n");
-    dprintf(STDOUT_FILENO,"Pedidos gerados:\n%10d Homens;\n%10d Mulheres;\nTotais:%10d\n",estat_gerados_m,estat_gerados_f,estat_gerados_m+estat_gerados_f);
-    dprintf(STDOUT_FILENO,"Pedidos rejeitados:\n%10d Homens;\n%10d Mulheres;\nTotais:%10d\n",estat_rejeitados_m,estat_rejeitados_f,estat_rejeitados_m+estat_rejeitados_f);
-    dprintf(STDOUT_FILENO,"Pedidos descartados:\n%10d Homens;\n%10d Mulheres;\nTotais:%10d\n",estat_descartados_m,estat_descartados_f,estat_descartados_m+estat_descartados_f);
+    dprintf(STDOUT_FILENO, "ESTATISTICAS:\n");
+    dprintf(STDOUT_FILENO, "Pedidos gerados:\n%10d Homens;\n%10d Mulheres;\nTotais:%10d\n", estat_gerados_m, estat_gerados_f, estat_gerados_m + estat_gerados_f);
+    dprintf(STDOUT_FILENO, "Pedidos rejeitados:\n%10d Homens;\n%10d Mulheres;\nTotais:%10d\n", estat_rejeitados_m, estat_rejeitados_f, estat_rejeitados_m + estat_rejeitados_f);
+    dprintf(STDOUT_FILENO, "Pedidos descartados:\n%10d Homens;\n%10d Mulheres;\nTotais:%10d\n", estat_descartados_m, estat_descartados_f, estat_descartados_m + estat_descartados_f);
     //destruir fifos
     if (fifo_destroy() < 0)
     {
