@@ -1,0 +1,12 @@
+Elementos do Grupo:
+Daniel Pinho
+Eduardo Ramos
+Xavier Fontes
+
+Race Conditions:
+	-De forma a evitar casos de race condition pusemos em prática dois semáforos, um semáforo quando havia a 
+modificacao de variaveis a que todas as threads tinham acesso, de forma a impedir que duas threads modificassem
+o valor da variavel que encapsula o numero de lugares livres da sauna, este semaforo foi inicializado com o valor 1.
+O outro semaforo posto em prática serviu para "bloquear" a sauna quando vinha um pedido que podia ser satisfeito mas 
+que naquele momento tinha que esperar por causa da sauna estar cheia, dessa forma esse semaforo foi inicializado com
+o numero de lugares totais da sauna.
