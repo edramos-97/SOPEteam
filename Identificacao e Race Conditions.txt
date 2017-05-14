@@ -4,9 +4,14 @@ Eduardo Ramos
 Xavier Fontes
 
 Race Conditions:
-	-De forma a evitar casos de race condition pusemos em pr�tica dois sem�foros, um sem�foro quando havia a 
-modificacao de variaveis a que todas as threads tinham acesso, de forma a impedir que duas threads modificassem
-o valor da variavel que encapsula o numero de lugares livres da sauna, este semaforo foi inicializado com o valor 1.
-O outro semaforo posto em pr�tica serviu para "bloquear" a sauna quando vinha um pedido que podia ser satisfeito mas 
-que naquele momento tinha que esperar por causa da sauna estar cheia, dessa forma esse semaforo foi inicializado com
+	-De forma a evitar casos de race condition pusemos em prática dois semáforos, um semáforo quando havia a 
+modificação de variáveis a que todas as threads tinham acesso, de forma a impedir que duas threads modificassem
+o valor da variável que encapsula o numero de lugares livres da sauna, este semáforo foi inicializado com o valor 1.
+O outro semáforo posto em prática serviu para "bloquear" a sauna quando vinha um pedido que podia ser satisfeito mas 
+que naquele momento tinha que esperar por causa da sauna estar cheia, dessa forma esse semáforo foi inicializado com
 o numero de lugares totais da sauna.
+	-Para além do mencionado acima, usamos ainda semáforos de forma a escrever para os ficheiros de controlo, da sauna
+como do gerador, sem haver escritas simultâneas pois verificamos que acontecia ficar com linhas de registo escritas 
+"por cima" de outras.
+	Desta forma conseguimos que os dois programas comunicassem harmoniosamente e que os ficheiros de controlo fossem 
+escritos sem chance de erro, possibilitando assim um registo confiável e de valor.
