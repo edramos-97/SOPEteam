@@ -20,3 +20,5 @@ unsigned int estat_rejeitados_m = 0;
 unsigned int estat_rejeitados_f = 0;
 unsigned int estat_descartados_m = 0;
 unsigned int estat_descartados_f = 0;
+
+sem_t semaforo_controlo;

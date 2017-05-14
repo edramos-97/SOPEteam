@@ -10,6 +10,8 @@ void *thread_trata_rejeitados(void *argument)
             estat_rejeitados_f++;
         else
             estat_rejeitados_m++;
+
+        sem_wait(&semaforo_controlo);
         clock_gettime(CLOCK_MONOTONIC_RAW, &time_curr_g);
         dprintf(fd_controlo_g, "%10.2fms - ", convertToMilliseconds(time_curr_g) - convertToMilliseconds(time_init_g)); //tempo
         dprintf(fd_controlo_g, "%-5d - ", getpid());                                                                //pid proc
@@ -17,11 +19,12 @@ void *thread_trata_rejeitados(void *argument)
         dprintf(fd_controlo_g, "%c - ", pedido_rejeitado.sex);                                                                     //genero
         dprintf(fd_controlo_g, "%-6d - ", pedido_rejeitado.duration);                                                              //duração
         dprintf(fd_controlo_g, "%-10s\n", "REJEITADO");
+        sem_post(&semaforo_controlo);
 
         pedido_rejeitado.rejeicoes++;
         if (pedido_rejeitado.rejeicoes < 3)
         { //envia para entrada
-
+            sem_wait(&semaforo_controlo);
             clock_gettime(CLOCK_MONOTONIC_RAW, &time_curr_g);
             dprintf(fd_controlo_g, "%10.2fms - ", convertToMilliseconds(time_curr_g) - convertToMilliseconds(time_init_g)); //tempo
             dprintf(fd_controlo_g, "%-5d - ", getpid());                                                                //pid proc
@@ -30,6 +33,7 @@ void *thread_trata_rejeitados(void *argument)
             dprintf(fd_controlo_g, "%-6d - ", pedido_rejeitado.duration);                                                              //duração
             dprintf(fd_controlo_g, "%-10s\n", "PEDIDO");
             write(fd_fifo_entrada, &pedido_rejeitado, sizeof(pedido_rejeitado));
+            sem_post(&semaforo_controlo);
         }
         else
         { //descarta
@@ -37,6 +41,7 @@ void *thread_trata_rejeitados(void *argument)
                 estat_descartados_f++;
             else
                 estat_descartados_m++;
+            sem_wait(&semaforo_controlo);
             clock_gettime(CLOCK_MONOTONIC_RAW, &time_curr_g);
             dprintf(fd_controlo_g, "%10.2fms - ", convertToMilliseconds(time_curr_g) - convertToMilliseconds(time_init_g)); //tempo
             dprintf(fd_controlo_g, "%-5d - ", getpid());                                                                //pid proc
@@ -44,6 +49,7 @@ void *thread_trata_rejeitados(void *argument)
             dprintf(fd_controlo_g, "%c - ", pedido_rejeitado.sex);                                                                     //genero
             dprintf(fd_controlo_g, "%-6d - ", pedido_rejeitado.duration);                                                              //duração
             dprintf(fd_controlo_g, "%-10s\n", "DESCARTADO");
+            sem_post(&semaforo_controlo);
         }
 
         resultado_leitura = read(fd_fifo_rejeitados, &pedido_rejeitado, sizeof(pedido_rejeitado));
@@ -74,13 +80,15 @@ void envia_pedido(PEDIDO p)
         //tempo de referencia é o inicio do programa.
         //(instante de tempo em ms) – (pid do processo) – (numero do pedido): (genero do utilizador) – (duração de utilização) – (tipo de msg)
         //tipos de mensagem "PEDIDO", "REJEITADO" ou "DESCARTADO"
+        sem_wait(&semaforo_controlo);
         clock_gettime(CLOCK_MONOTONIC_RAW, &time_curr_g);
         dprintf(fd_controlo_g, "%10.2fms - ", convertToMilliseconds(time_curr_g) - convertToMilliseconds(time_init_g)); //tempo
         dprintf(fd_controlo_g, "%-5d - ", getpid());                                                                //pid proc
         dprintf(fd_controlo_g, "%-10u: ", p.serial_num);                                                            //num pedidos
         dprintf(fd_controlo_g, "%c - ", p.sex);                                                                     //genero
         dprintf(fd_controlo_g, "%-6d - ", p.duration);                                                              //duração
-        dprintf(fd_controlo_g, "%-10s\n", "PEDIDO");                                                                //tipo
+        dprintf(fd_controlo_g, "%-10s\n", "PEDIDO");     //tipo
+        sem_post(&semaforo_controlo);                                                           
     }
 
     return;
@@ -148,6 +156,8 @@ int main(int argc, char *argv[])
     //prepara ficheiro controlo
     sprintf(nome_ficheiro_controlo, "%s%d", SUFIXO_CONTROLO_G, getpid());
     fd_controlo_g = open(nome_ficheiro_controlo, O_WRONLY | O_TRUNC | O_CREAT, PERMISSOES_MODE);
+
+    sem_init(&semaforo_controlo, 0, 1);
 
     clock_gettime(CLOCK_MONOTONIC_RAW, &time_init_g);
 

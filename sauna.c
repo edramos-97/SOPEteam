@@ -12,16 +12,6 @@ void *thread_principal(void *argumento)
             estat_recebidos_f++;
         else
             estat_recebidos_m++;
-        clock_gettime(CLOCK_MONOTONIC_RAW, &time_curr);
-        dprintf(fd_controlo_s, "%.2fms - ", convertToMilliseconds(time_curr) - convertToMilliseconds(time_init)); //tempo
-        dprintf(fd_controlo_s, "%-5d - ", getpid());   //pid proc
-        dprintf(fd_controlo_s, "%-5lu - ", pthread_self()); //tid
-        dprintf(fd_controlo_s, "%-10u: ", pedido_recebido.serial_num); //num pedido
-        dprintf(fd_controlo_s, "%c - ", pedido_recebido.sex);          //genero
-        dprintf(fd_controlo_s, "%-6d - ", pedido_recebido.duration);   //duração
-        dprintf(fd_controlo_s, "%-10s\n", "RECEBIDO");   //tipo
-
-        //print_info(pedido_recebido,"RECEBIDO");
 
         if (flag_recebeu == NAO_RECEBEU_PRIMEIRO)
         {
@@ -30,6 +20,17 @@ void *thread_principal(void *argumento)
         }
 
         sem_wait(&acesso_var_livres);
+        clock_gettime(CLOCK_MONOTONIC_RAW, &time_curr);
+        dprintf(fd_controlo_s, "%10.2fms - ", convertToMilliseconds(time_curr) - convertToMilliseconds(time_init)); //tempo
+        dprintf(fd_controlo_s, "%-5d - ", getpid());   //pid proc
+        dprintf(fd_controlo_s, "%-5lu - ", pthread_self()); //tid
+        dprintf(fd_controlo_s, "%-10u: ", pedido_recebido.serial_num); //num pedido
+        dprintf(fd_controlo_s, "%c - ", pedido_recebido.sex);          //genero
+        dprintf(fd_controlo_s, "%-6d - ", pedido_recebido.duration);   //duração
+        dprintf(fd_controlo_s, "%-10s\n", "RECEBIDO");   //tipo
+
+
+
         if (estado_sauna == VAZIA)
         {
             estado_sauna = pedido_recebido.sex;
@@ -43,25 +44,35 @@ void *thread_principal(void *argumento)
                 estat_servidos_f++;
             else
                 estat_servidos_m++;
-            clock_gettime(CLOCK_MONOTONIC_RAW, &time_curr);
-            dprintf(fd_controlo_s, "%.2fms - ", convertToMilliseconds(time_curr) - convertToMilliseconds(time_init)); //tempo
-            dprintf(fd_controlo_s, "%-5d - ", getpid());   //pid proc
-            dprintf(fd_controlo_s, "%-5lu - ", pthread_self()); //tid
-            dprintf(fd_controlo_s, "%-10u: ", pedido_recebido.serial_num); //num pedido
-            dprintf(fd_controlo_s, "%c - ", pedido_recebido.sex);          //genero
-            dprintf(fd_controlo_s, "%-6d - ", pedido_recebido.duration);   //duração
-            dprintf(fd_controlo_s, "%-10s\n", "SERVIDO");   //tipo
+            // clock_gettime(CLOCK_MONOTONIC_RAW, &time_curr);
+            // dprintf(fd_controlo_s, "%.2fms - ", convertToMilliseconds(time_curr) - convertToMilliseconds(time_init)); //tempo
+            // dprintf(fd_controlo_s, "%-5d - ", getpid());   //pid proc
+            // dprintf(fd_controlo_s, "%-5lu - ", pthread_self()); //tid
+            // dprintf(fd_controlo_s, "%-10u: ", pedido_recebido.serial_num); //num pedido
+            // dprintf(fd_controlo_s, "%c - ", pedido_recebido.sex);          //genero
+            // dprintf(fd_controlo_s, "%-6d - ", pedido_recebido.duration);   //duração
+            // dprintf(fd_controlo_s, "%-10s\n", "SERVIDO");   //tipo
 
             
             sem_wait(&semaforo_vagas); //menos uma vaga
             //criar thread de espera
             pthread_t tid;
-            int * tempo = malloc(sizeof(int));
-            (*tempo) = pedido_recebido.duration;
-            pthread_create(&tid,NULL,thread_espera,(void *) tempo);
+            int * argumento_espera = malloc(sizeof(PEDIDO));
+             ((PEDIDO*)(argumento_espera))->sex = pedido_recebido.sex;
+            ((PEDIDO*)(argumento_espera))->serial_num = pedido_recebido.serial_num;
+            ((PEDIDO*)(argumento_espera))->duration = pedido_recebido.duration;
+            pthread_create(&tid,NULL,thread_espera,(void *) argumento_espera);
         }
         else if (estado_sauna != pedido_recebido.sex)
         { //rejeitar
+            clock_gettime(CLOCK_MONOTONIC_RAW, &time_curr);
+            dprintf(fd_controlo_s, "%10.2fms - ", convertToMilliseconds(time_curr) - convertToMilliseconds(time_init)); //tempo
+            dprintf(fd_controlo_s, "%-5d - ", getpid());    //pid proc
+            dprintf(fd_controlo_s, "%-5lu - ", pthread_self()); //tid
+            dprintf(fd_controlo_s, "%-10u: ", pedido_recebido.serial_num); //num pedido
+            dprintf(fd_controlo_s, "%c - ", pedido_recebido.sex);          //genero
+            dprintf(fd_controlo_s, "%-6d - ", pedido_recebido.duration);   //duração
+            dprintf(fd_controlo_s, "%-10s\n", "REJEITADO");   //tipo
             sem_post(&acesso_var_livres);
             if (pedido_recebido.rejeicoes == 2) //sera descartado seguidamente entao menos um pa preocupar
                 pedidos_restantes--;
@@ -71,15 +82,7 @@ void *thread_principal(void *argumento)
                 estat_rejeitados_f++;
             else
                 estat_rejeitados_f++;
-            clock_gettime(CLOCK_MONOTONIC_RAW, &time_curr);
-            dprintf(fd_controlo_s, "%.2fms - ", convertToMilliseconds(time_curr) - convertToMilliseconds(time_init)); //tempo
-            dprintf(fd_controlo_s, "%-5d - ", getpid());    //pid proc
-            dprintf(fd_controlo_s, "%-5lu - ", pthread_self()); //tid
-            dprintf(fd_controlo_s, "%-10u: ", pedido_recebido.serial_num); //num pedido
-            dprintf(fd_controlo_s, "%c - ", pedido_recebido.sex);          //genero
-            dprintf(fd_controlo_s, "%-6d - ", pedido_recebido.duration);   //duração
-            dprintf(fd_controlo_s, "%-10s\n", "REJEITADO");   //tipo
-
+            
             //escrever no fifo rejeitados
 
             write(fd_fifo_rejeitados,&pedido_recebido,sizeof(pedido_recebido));
@@ -99,19 +102,21 @@ void *thread_principal(void *argumento)
                 estat_servidos_f++;
             else
                 estat_servidos_m++;
-            clock_gettime(CLOCK_MONOTONIC_RAW, &time_curr);
-            dprintf(fd_controlo_s, "%.2fms - ", convertToMilliseconds(time_curr) - convertToMilliseconds(time_init)); //tempo
-            dprintf(fd_controlo_s, "%-5d - ", getpid());   //pid                                                           
-            dprintf(fd_controlo_s, "%-5lu - ", pthread_self()); //tid
-            dprintf(fd_controlo_s, "%-10u: ", pedido_recebido.serial_num); //num pedido
-            dprintf(fd_controlo_s, "%c - ", pedido_recebido.sex);          //genero
-            dprintf(fd_controlo_s, "%-6d - ", pedido_recebido.duration);   //duração
-            dprintf(fd_controlo_s, "%-10s\n", "SERVIDO");   //tipo
+            // clock_gettime(CLOCK_MONOTONIC_RAW, &time_curr);
+            // dprintf(fd_controlo_s, "%.2fms - ", convertToMilliseconds(time_curr) - convertToMilliseconds(time_init)); //tempo
+            // dprintf(fd_controlo_s, "%-5d - ", getpid());   //pid                                                           
+            // dprintf(fd_controlo_s, "%-5lu - ", pthread_self()); //tid
+            // dprintf(fd_controlo_s, "%-10u: ", pedido_recebido.serial_num); //num pedido
+            // dprintf(fd_controlo_s, "%c - ", pedido_recebido.sex);          //genero
+            // dprintf(fd_controlo_s, "%-6d - ", pedido_recebido.duration);   //duração
+            // dprintf(fd_controlo_s, "%-10s\n", "SERVIDO");   //tipo
             //criar thread de espera
             pthread_t tid;
-            int * tempo = malloc(sizeof(int));
-            (*tempo) = pedido_recebido.duration;
-            pthread_create(&tid,NULL,thread_espera,(void *) tempo);
+            int * argumento_espera = malloc(sizeof(PEDIDO));
+            ((PEDIDO*)(argumento_espera))->sex = pedido_recebido.sex;
+             ((PEDIDO*)(argumento_espera))->serial_num = pedido_recebido.serial_num;
+            ((PEDIDO*)(argumento_espera))->duration = pedido_recebido.duration;
+            pthread_create(&tid,NULL,thread_espera,(void *) argumento_espera);
         }
 
     } while (pedidos_restantes > 0);
@@ -136,11 +141,19 @@ void *thread_principal(void *argumento)
 }
 
 void *thread_espera(void *argumento)
-{ //argumento sera o tempo a esperar
-    usleep((*((int *)argumento)) * 1000);
-    free(argumento);
-
+{ //argumento sera um pedido com informacao relevante preenchida
+    usleep(((PEDIDO*)argumento)->duration * 1000);
+    
     sem_wait(&acesso_var_livres);
+    clock_gettime(CLOCK_MONOTONIC_RAW, &time_curr);
+    dprintf(fd_controlo_s, "%10.2fms - ", convertToMilliseconds(time_curr) - convertToMilliseconds(time_init)); //tempo
+    dprintf(fd_controlo_s, "%-5d - ", getpid());   //pid                                                           
+    dprintf(fd_controlo_s, "%-5lu - ", pthread_self()); //tid
+    dprintf(fd_controlo_s, "%-10u: ", ((PEDIDO*)argumento)->serial_num); //num pedido
+    dprintf(fd_controlo_s, "%c - ", ((PEDIDO*)argumento)->sex);          //genero
+    dprintf(fd_controlo_s, "%-6d - ", ((PEDIDO*)argumento)->duration);   //duração
+    dprintf(fd_controlo_s, "%-10s\n", "SERVIDO");   //tipo
+    free(argumento);
     lugares_livres++;
     if (lugares_livres == numero_vagas)
         estado_sauna = VAZIA;
