@@ -3,6 +3,11 @@ Daniel Pinho
 Eduardo Ramos
 Xavier Fontes
 
+Correr o programa:
+-usar simplesmente a instruçao 'make' para compilar o programa
+-usar make clean se for preciso limpar os executaveis
+
+
 Race Conditions:
 	-De forma a evitar casos de race condition pusemos em prática dois semáforos, um semáforo quando havia a 
 modificação de variáveis a que todas as threads tinham acesso, de forma a impedir que duas threads modificassem
