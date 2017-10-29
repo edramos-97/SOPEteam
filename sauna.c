@@ -81,7 +81,7 @@ void *thread_principal(void *argumento)
             if (pedido_recebido.sex == 'F')
                 estat_rejeitados_f++;
             else
-                estat_rejeitados_f++;
+                estat_rejeitados_m++;
             
             //escrever no fifo rejeitados
 
